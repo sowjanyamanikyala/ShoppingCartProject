@@ -1,21 +1,18 @@
 package projectSC.ShoppingCart;
 
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.time.LocalDate; 
+import java.util.*;
 import javax.persistence.Query;
+
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-public class ShoppingCart {
-
+public class ShoppingCart 
+{
     private static Scanner scanner = new Scanner(System.in);
     private static SessionFactory sessionFactory;
     private static Session session;
@@ -30,168 +27,184 @@ public class ShoppingCart {
         System.out.println("SHOPPING CART MANAGEMENT");
         System.out.println("===========================");
 
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("Enter Admin Username: ");
-        String adminUsername = scanner.nextLine();
+        String userName1 = scanner.nextLine();
         System.out.println("Enter Admin Password: ");
-        String adminPassword = scanner.nextLine();
+        int password1 = scanner.nextInt();
+        scanner.nextLine(); // Consume newline character
 
-        if (isAdminAuthenticated(adminUsername, adminPassword)) {
-            boolean exit = false;
-            
-            while (!exit) {
-            	
-                System.out.println("\nSelect an option:");
-                System.out.println("--------------------");
-                System.out.println("1.Create");
-                System.out.println("2. Billing");
-                System.out.println("3. View Shooping Crt Details");
-                System.out.println("4. Update Shopping Cart Details");
-                System.out.println("5. Delete Shopping Cart Details");
-                System.out.println("6. Exit");
-                System.out.print("Enter your choice: ");
-
+        if (userName1.equals(Admin.getUserName()) && password1 == Admin.getPassword()) {
+            int choice;
+            do {
                 try {
-                    int choice = scanner.nextInt();
-                    scanner.nextLine();
+                    System.out.println("\n======================================");
+                    System.out.println("WELCOME TO SHOPPING CART MANAGEMENT SYSTEM");
+                    System.out.println("======================================");
+                    System.out.println("Select an option:");
+                    System.out.println("--------------------");
+                    System.out.println("1.Create");
+                    System.out.println("2. Read Shopping Cart Details");
+                    System.out.println("3. Update Shopping Cart Details");
+                    System.out.println("4. Delete Shopping Cart Details");
+                    System.out.println("5. Billing");
+                    System.out.println("6. Exit");
+                    System.out.print("Enter your choice: ");
+
+                    choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+
                     switch (choice) {
-                    case 1:
-                    	create();
-                    	break;
-                    case 2:
-                    	Billing();
-                    	break;
-                       
-                        case 3:
+                        case 1:
+                            create();
+                            break;
+                        case 2:
                             read();
                             break;
-                        case 4:
+                        case 3:
                             updateShoppingCart();
                             break;
+                        case 4:
+                            deleteshoppingcart();
+                            break;
                         case 5:
-                            deleteProduct();
+                            Billing();
                             break;
                         case 6:
-                            exit = true;
+                            System.out.println("Exiting program...");
                             break;
                         default:
-                            System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                            System.out.println("Invalid choice. Please enter a number between 1 and 6.");
                             break;
                     }
                 } catch (InputMismatchException e) {
                     System.out.println("Invalid input. Please enter a valid number.");
-                    scanner.next(); // Clear the invalid input
+                    scanner.nextLine(); // Clear the invalid input
+                    choice = 0; // Reset choice to allow the loop to continue
+                } catch (NoSuchElementException e) {
+                    // If no more input is available, break out of the loop
+                    break;
                 }
-            }
+            } while (true); // Infinite loop
         } else {
-            System.out.println("Incorrect username or password. Access denied.");
+            System.out.println("Incorrect username or password.");
         }
 
-        session.close();
-        sessionFactory.close();
+        // Close the scanner after its usage
         scanner.close();
     }
 
-    private static boolean isAdminAuthenticated(String username, String password) {
-        // Add logic to authenticate admin (e.g., check username and password against a database)
-        return username.equals("admin") && password.equals("admin012");
+
+    public static void create() 
+    {
+        Scanner scanner = new Scanner(System.in);
+        int choice = 0; // Initialize choice outside the loop
+
+        while (choice != 6)
+        {
+            System.out.println("Select What You Want to Create:");
+            System.out.println("1. Customer");
+            System.out.println("2. Create Product");
+            System.out.println("3. Create Order Details");
+            System.out.println("4. Create OrderItem Details");
+            System.out.println("5. Create CartItem Details");
+            System.out.println("6. Exit Menu");
+            System.out.print("Enter Your Choice: ");
+
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline character
+
+            switch (choice) 
+            {
+                case 1:
+                    createCustomer();
+                    break;
+                case 2:
+                    addProduct();
+                    break;
+                case 3:
+                	addOrder(scanner);
+                    break;
+                case 4:
+                    addOrderItem(scanner);
+                    break;
+                case 5:
+                    addcartItem();
+                    break;
+                case 6:
+                    System.out.println("Exiting Menu...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 6.");
+                    break;
+            }
+        }
+
+        // Close the scanner
+        scanner.close();
     }
 
-    private static void create() {
-    	 while (true) {
-             System.out.println("\nSelect What You Want to Create:");
-             System.out.println("1. Customer");
-             System.out.println("2. Create Product");
-             System.out.println("3. Create Order Details");
-             System.out.println("4. Create OrderItem Details");
-             System.out.println("5. Create CartItem Details");
-             System.out.println("6. Exit  Menu");
-             System.out.print("\nEnter Your Choice: ");
 
-             try {
-                 int choice = scanner.nextInt();
-                 scanner.nextLine();
+    private static void createCustomer()
+    {
+        System.out.println("\nCreating a New Customer:");
 
-                 switch (choice) {
-                     case 1:
-                         createCustomer();
-                         break;
-                     case 2:
-                         addProduct();
-                         break;
-                     case 3:
-                    	 addOrder();
-                    	 break;
-                     case 4:
-                    	 addOrderItem();
-                    	 break;
-                     case 5:
-                    	 addcartItem();
-                    	 break;
-                     case 6:
-                         return;
-                     default:
-                         System.out.println("Invalid Choice! Please Enter a Valid Option.");
-                         break;
-                 }
-             } catch (InputMismatchException e) {
-                 System.out.println("Please Enter a Valid Integer Option.");
-                 scanner.nextLine(); // Consume the invalid input
-             }
-         }
-     }
+        System.out.println("Enter first name: ");
+        String firstName = scanner.nextLine().trim();
 
-    private static void createCustomer() {
-    	  scanner.nextLine(); // Consume the newline character left by nextInt()
+        System.out.println("Enter customer email: ");
+        String email = scanner.nextLine().trim();
 
-          System.out.println("\nCreating a New Customer:");
+        System.out.println("Enter customer address: ");
+        String address = scanner.nextLine().trim();
 
-          System.out.println("Enter first name: ");
-          String firstName = scanner.next().trim(); // Trim leading/trailing whitespaces
+        // Validate that required fields are not empty
+        if (firstName.isEmpty() || email.isEmpty() || address.isEmpty())
+        {
+            System.out.println("Please provide valid details. Name, email, and address are required.");
+            return;
+        }
 
-          System.out.println("Enter customer email: ");
-          String email = scanner.next().trim();
+        // Create a new Customer object
+        Customer customer = new Customer();
+        customer.setFirstName(firstName);
+        customer.setEmail(email);
+        customer.setLaddress(address);
 
-          System.out.print("Enter customer address: ");
-          String address = scanner.next().trim();
+        // Save the customer to the database using Hibernate
+        Transaction transaction = null;
+        try 
+        {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
 
-          // Validate that required fields are not empty
-          if (firstName.isEmpty() || email.isEmpty() || address.isEmpty()) {
-              System.out.println("Please provide valid details. Name, email, and address are required.");
-              return;
-          }
+            session.save(customer);
 
-          // Create a new Customer object
-          Customer customer = new Customer();
-          customer.setFirstName(firstName);
-          customer.setEmail(email);
-          customer.setLaddress(address);
+            transaction.commit();
+            System.out.println("Customer created successfully.");
+        } catch (HibernateException e) 
+        {
+            if (transaction != null) 
+            {
+                transaction.rollback();
+            }
+            System.out.println("Failed to create customer. Error: " + e.getMessage());
+        }
+        finally 
+        {
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+    }
 
-          // Save the customer to the database using Hibernate
-          Transaction transaction = null;
-          try {
-              session = sessionFactory.openSession();
-              transaction = session.beginTransaction();
-
-              session.save(customer);
-
-              transaction.commit();
-              System.out.println("Customer created successfully.");
-          } catch (Exception e) {
-              if (transaction != null) {
-                  transaction.rollback();
-              }
-              System.out.println("Failed to create customer. Error: " + e.getMessage());
-          } finally {
-              if (session != null) {
-                  session.close();
-              }
-          }
-      }
     
 
    
 /*=============================================================================================*/
-    private static void addProduct() {
+    private static void addProduct() 
+    {
         System.out.println("Adding a new product:");
         System.out.println("----------------------");
 
@@ -204,17 +217,16 @@ public class ShoppingCart {
         System.out.println("Enter product Price: ");
         double Price = scanner.nextDouble();
 
-        
-        // Create a new Product object
+         // Create a new Product object
         Product product = new Product();
         product.setName(productName);
         product.setCategory(Category);
         product.setPrice(Price);
         
-
         // Save the product to the database using Hibernate
         Transaction transaction = null;
-        try {
+        try 
+        {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
 
@@ -222,148 +234,126 @@ public class ShoppingCart {
 
             transaction.commit();
             System.out.println("Product added successfully.");
-        } catch (Exception e) {
-            if (transaction != null) {
+        }
+        catch (Exception e) 
+        {
+            if (transaction != null)
+            {
                 transaction.rollback();
             }
             System.out.println("Failed to add product. Error: " + e.getMessage());
-        } finally {
+        }
+        finally 
+        {
             if (session != null) {
                 session.close();
             }
         }
     }
-    public static void addOrder() {
-    	 {
-    	    scanner = new Scanner(System.in);
+    
+    public static void addOrder(Scanner scanner) {
+        Session session = null;
+        Transaction transaction = null;
 
-    	    // Get order details
-    	    System.out.print("Enter Order ID: ");
-    	    long orderId = scanner.nextLong();
-    	    scanner.nextLine();
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
 
-    	    System.out.print("Enter Total Amount: ");
-    	    float totalAmount = scanner.nextFloat();
-    	    scanner.nextLine();
+            // Get order details
+            System.out.print("Enter Total Amount: ");
+            float totalAmount = scanner.nextFloat();
+            scanner.nextLine();
 
-    	    System.out.print("Enter Order Date (YYYY-MM-DD): ");
-    	    String dateString = scanner.nextLine();
-    	    LocalDate orderDate = LocalDate.parse(dateString); // Parse the date string
+            System.out.print("Enter Order Date (YYYY-MM-DD): ");
+            String dateString = scanner.nextLine();
+            LocalDate orderDate = LocalDate.parse(dateString);
 
-    	    // Create new Order object
-    	    Order order = new Order();
-    	    order.setId(orderId);
-    	    order.setTotalAmount(totalAmount);
-    	    order.setOrderDate(orderDate); // Set the order date
+            // Create new Order object
+            PurchaseOrder purchaseorder = new PurchaseOrder();
+            purchaseorder.setTotalAmount(totalAmount);
+            purchaseorder.setOrderDate(orderDate);
 
-    	    // Initialize order items list to avoid NullPointerException
-    	    order.setOrderItems(new ArrayList<>());
+            // Get customer ID
+            System.out.print("Enter Customer ID: ");
+            long customerId = scanner.nextLong();
+            scanner.nextLine();
 
-    	    // Get order items details
-    	    System.out.println("Enter Order Items (Product ID and Quantity), enter -1 to finish:");
+            // Retrieve the customer by ID
+            Customer customer = session.get(Customer.class, customerId);
+            if (customer == null) {
+                throw new IllegalArgumentException("Customer with ID " + customerId + " not found.");
+            }
 
-    	    while (true) {
-    	        System.out.print("Product ID: ");
-    	        long productId = scanner.nextLong();
-    	        scanner.nextLine();
+            // Set the customer for the order
+            purchaseorder.setCustomer(customer);
 
-    	        // Check if -1 is entered to finish
-    	        if (productId == -1) {
-    	            break; // Exit the loop
-    	        }
+            // Save the order to the database
+            session.save(purchaseorder);
 
-    	        System.out.print("Quantity: ");
-    	        int quantity = scanner.nextInt();
-    	        scanner.nextLine();
+            // Commit transaction
+            transaction.commit();
+            System.out.println("Order added successfully.");
+        } catch (Exception e) {
+            // Rollback transaction in case of failure
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("Failed to add order. Error: " + e.getMessage());
+        } finally {
+            // Close Hibernate session
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+   
+    public static void addOrderItem(Scanner scanner) {
+        Session session = null;
+        Transaction transaction = null;
 
-    	        // Create new CartItem object
-    	        CartItem cartItem = new CartItem();
-    	        
-    	        // Retrieve the product by ID (assuming getProductById retrieves the Product object by ID)
-    	        Product product = session.get(Product.class, productId);
-    	        if (product == null) {
-    	            System.out.println("Product with ID " + productId + " not found.");
-    	            continue; // Skip this iteration
-    	        }
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
 
-    	        cartItem.setProduct(product);
-    	        cartItem.setQuantity(quantity);
+            // Get product ID from user
+            System.out.print("Enter Product ID: ");
+            long productId = scanner.nextLong();
+            scanner.nextLine(); // Consume newline
 
-    	        // Associate the cart item with the order
-    	        cartItem.setOrder(order);
-OrderItem orderitem=new OrderItem();
-    	        // Add cart item to the order
-    	        order.getOrderItems().add(orderitem);
-    	    }
+            // Retrieve the product by ID
+            Product product = session.get(Product.class, productId);
+            if (product == null) {
+                throw new IllegalArgumentException("Product with ID " + productId + " not found.");
+            }
 
-    	    // Save the order and associated cart items to the database
-    	    Transaction transaction = null;
-    	    try {
-    	        session = sessionFactory.openSession();
-    	        transaction = session.beginTransaction();
+            // Get quantity from user
+            System.out.print("Enter Quantity: ");
+            int quantity = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
 
-    	        session.save(order);
+            // Create a new OrderItem
+            OrderItem orderItem = new OrderItem(product, quantity);
 
-    	        transaction.commit();
-    	        System.out.println("Order added successfully.");
-    	    } catch (Exception e) {
-    	        if (transaction != null) {
-    	            transaction.rollback();
-    	        }
-    	        System.out.println("Failed to add order. Error: " + e.getMessage());
-    	    } finally {
-    	        if (session != null) {
-    	            session.close();
-    	        }
-    	    }
-    	}
+            // Save the OrderItem
+            session.save(orderItem);
 
+            // Commit transaction
+            transaction.commit();
+            System.out.println("Order item added successfully.");
+        } catch (Exception e) {
+            // Rollback transaction in case of failure
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("Failed to add order item. Error: " + e.getMessage());
+        } finally {
+            // Close Hibernate session
+            if (session != null) {
+                session.close();
+            }
+        }
     }
 
-    
-   
-	public static void addOrderItem() {
-	    Scanner scanner = new Scanner(System.in);
-
-	    // Get order item details
-	    System.out.print("Enter Product ID: ");
-	    long productId = scanner.nextLong();
-	    scanner.nextLine();
-
-	    System.out.print("Enter Quantity: ");
-	    int quantity = scanner.nextInt();
-	    scanner.nextLine();
-Order order=new Order();
-Product product=new Product();
-	    // Create a new OrderItem object
-	    OrderItem orderItem = new OrderItem();
-	    orderItem.setOrder(order);; // Set the order ID for the order item
-	    orderItem.setProduct(product);; // Set the product ID for the order item
-	    orderItem.setQuantity(quantity);
-
-	    // Save the order item to the database
-	    Session session = null;
-	    Transaction transaction = null;
-	    try {
-	        session = sessionFactory.openSession();
-	        transaction = session.beginTransaction();
- session.save(product);
- session.save(order);
-	        session.save(orderItem);
-
-	        transaction.commit();
-	        System.out.println("Order item added successfully.");
-	    } catch (Exception e) {
-	        if (transaction != null) {
-	            transaction.rollback();
-	        }
-	        System.out.println("Failed to add order item. Error: " + e.getMessage());
-	    } finally {
-	        if (session != null) {
-	            session.close();
-	        }
-	    }
-	}
 
 	public static void addcartItem() {
 		Product product=new Product();
@@ -418,48 +408,49 @@ Product product=new Product();
 	}
 /*==================================================================================================================================*/	
 	public static void Billing() {
-	    while (true) {
-	        System.out.println("\nShopping Cart Billing Menu");
-	        System.out.println("--------------------------");
-	        System.out.println("1. Generate Bill");
-	        System.out.println("2. View Particular Billing ");
-	        System.out.println("3. View All Billing Records");
-	        System.out.println("4. Update Billing Record");
-	        System.out.println("5. Back ");
-	        System.out.print("\nEnter Your Choice: ");
-	        
-	        try {
-	            int choice = scanner.nextInt();
-	            scanner.nextInt();
-	            switch (choice) {
-	                case 1:
-	                    generateBill();
-	                    System.out.println();
-	                    break;
-	                case 2:
-	                    viewBillById();
-	                    
-	                    break;
-	                case 3:
-	                    viewAllBills();
-	                    System.out.println();
-	                    break;
-	                case 4:
-	                    updateBillAmount();
-	                    System.out.println();
-	                    break;
-	                case 5:
-	                    return;
-	                default:
-	                    System.out.println("Invalid choice! Please enter a valid option.");
-	                    break;
-	            }
-	        } catch (InputMismatchException e) {
-	            System.out.println("Please enter a valid integer choice.");
-	            scanner.nextLine(); // Consume the invalid input
-	        }
-	    }
-	}
+		int choice;
+        do {
+            // Display menu options
+            System.out.println("Shopping Cart Billing Menu");
+            System.out.println("--------------------------");
+            System.out.println("1. Generate Bill");
+            System.out.println("2. View Particular Billing");
+            System.out.println("3. View All Billing Records");
+            System.out.println("4. Update Billing Record");
+            System.out.println("5. Back");
+            System.out.print("Enter Your Choice: ");
+
+            // Read user choice
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline character
+
+            // Process user choice
+            switch (choice) {
+                case 1:
+                    generateBill();
+                    break;
+                case 2:
+                	viewBillById();
+                    break;
+                case 3:
+                	viewAllBills();
+                    break;
+                case 4:
+                	updateBillAmount();
+                    break;
+                case 5:
+                    System.out.println("Returning to previous menu...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                    break;
+            }
+        } while (choice != 5);
+        
+        // Close the scanner after its usage
+        scanner.close();
+    }
+
 	public static void generateBill() {
 	    Scanner scanner = new Scanner(System.in);
 	    Session session = null;
@@ -474,7 +465,7 @@ Product product=new Product();
 
 	        // Open session
 	        session = sessionFactory.openSession();
-   Order order=new Order();
+   PurchaseOrder purchaseorder=new PurchaseOrder();
    Product product = new Product();
    
 	        // Create a new Billing object
@@ -512,11 +503,11 @@ Product product=new Product();
 	        long productId = scanner.nextLong();
 
 	        // Save the billing record
-	        billing.setOrder(order);
+	        billing.setPurchaseorder(purchaseorder);;
 	        billing.setProduct(product);
 
 	        session.beginTransaction();
-	        session.save(order);
+	        session.save(purchaseorder);
 	        session.save(product);
 	        session.save(billing);
 	        session.getTransaction().commit();
@@ -535,141 +526,135 @@ Product product=new Product();
 	    }
 	}
 	public static void viewBillById() {
-	    try {
-	        System.out.print("Enter Billing ID: ");
-	        long id = scanner.nextLong();
-	        
+		 try {
+		        System.out.print("Enter Billing ID: ");
+		        long id = scanner.nextLong();
+		        scanner.nextLine(); // Consume newline character
 
-	        // Query to fetch billing details by ID
-	        String hqlQuery = "SELECT b.billingAddress, b.billingDate, b.cardNumber,b.amount, b.discountAmount, b.order.id, b.product.id " +
-	                          "FROM Billing b " +
-	                          "WHERE b.id = :id";
+		        // Fetch billing details by ID
+		        Query query = session.createQuery("SELECT b.billingAddress, b.cardNumber, b.totalAmount, b.billingDate, b.discountAmount, b.purchaseorder.id, b.product.id " +
+		                                           "FROM Billing b " +
+		                                           "WHERE b.id = :id")
+		                             .setParameter("id", id);
+		        Object[] result = (Object[]) query.getSingleResult();
 
-	        List<Object[]> data = session.createQuery(hqlQuery, Object[].class)
-	                                      .setParameter("id", id)
-	                                      .getResultList();
+		        // Print billing details in table format
+		        System.out.println("\nBilling Details:");
+		        System.out.println("==============================================================");
+		        System.out.printf("%-20s | %-15s | %-15s | %-15s | %-15s | %-15s | %-15s\n",
+		                          "Billing Address", "Card Number", "Total Amount", "Billing Date", "Discount Amount", "Order ID", "Product ID");
+		        System.out.println("--------------------------------------------------------------");
 
-	        if (data.isEmpty()) {
-	            System.out.println("No billing record found with the specified ID.");
-	        } else {
-	            System.out.print("Billing Details:");
-	            System.out.println("----------------");
-	            System.out.println("=====================================================================================================");
-	            System.out.println("Billing Address | Billing Date | Card Number | Discount Amount | Total Amount | Order ID | Product ID");
-	            System.out.println("------------------------------------------------------------------------------------------------------");
+		        String billingAddress = (String) result[0];
+		        String cardNumber = (String) result[1];
+		        double totalAmount = (double) result[2];
+		        LocalDate billingDate = (LocalDate) result[3];
+		        double discountAmount = (double) result[4];
+		        long orderId = (long) result[5];
+		        long productId = (long) result[6];
 
-	            for (Object[] row : data) {
-	                String billingAddress = (String) row[0];
-	                LocalDate billingDate = (LocalDate) row[1];
-	                String cardNumber = (String) row[2];
-	                double totalamount = (double) row[3];	                double discountAmount = (double) row[3];
-	                long orderId = (long) row[4];
-	                long productId = (long) row[5];
+		        System.out.printf("%-20s | %-15s | %-15s | %-15s | %-15s | %-15s | %-15s\n",
+		                          billingAddress, cardNumber, totalAmount, billingDate, discountAmount, orderId, productId);
 
-	                System.out.printf("%-15s | %-12s | %-11s | %-15s | %-8s | %-8s| %-9s\n",
-	                                  billingAddress, billingDate, cardNumber, discountAmount,totalamount, orderId, productId);
-	            }
-	        }
-	    } catch (InputMismatchException e) {
-	        System.out.println("Invalid input. Please enter a valid ID.");
-	    } catch (Exception e) {
-	        System.out.println("Error: " + e.getMessage());
-	    }
+		    } catch (Exception e) {
+		        System.out.println("Error: " + e.getMessage());
+		    }
 	}
 
 	public static void viewAllBills() {
-	    String hqlQuery = "SELECT b.id, b.billingAddress, b.billingDate, b.cardNumber, b.discountAmount,b.amount, b.order.id, b.product.id " +
-	                      "FROM Billing b";
-	    List<Object[]> data = session.createQuery(hqlQuery, Object[].class).list();
+		String hqlQuery = "SELECT b.id, b.billingAddress, b.billingDate, b.cardNumber, b.discountAmount, b.totalAmount, b.purchaseorder.id, b.product.id " +
+                "FROM Billing b";
+List<Object[]> data = session.createQuery(hqlQuery, Object[].class).list();
 
-	    if (data.isEmpty()) {
-	        System.out.println("There are no records found.");
-	    } else {
-	        System.out.println("Billing Details:");
-	        System.out.println("=================================================================================================================================================");
+if (data.isEmpty()) {
+  System.out.println("There are no records found.");
+} else {
+  System.out.println("Billing Details:");
+  System.out.println("=================================================================================================================================================");
 
-	        System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+---------------");
-	        System.out.println("| Billing_Id | Billing_Address  | Billing_Date         | Card_Number     | Discount_Amount  | Total Amount    | Order_Id         |   Product_Id     |");
-	        System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+----------------");
-            System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------");
-	        for (Object[] row : data) {
-	            System.out.printf("| %-10s | %-16s | %-20s | %-15s | %-16s | %-16s |%-16s| %-16s |\n", row[0], row[1], row[2], row[3], row[4], row[5], row[6],row[7]);
-	        }
+  System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+---------------");
+  System.out.println("| Billing_Id | Billing_Address  | Billing_Date         | Card_Number     | Discount_Amount  | Total Amount    | Order_Id         |   Product_Id     |");
+  System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+----------------");
+  System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------");
+  for (Object[] row : data) {
+      System.out.printf("| %-10s | %-16s | %-20s | %-15s | %-16s | %-16s |%-16s| %-16s |\n", row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]);
+  }
 
-	        System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+");
-	    }
+  System.out.println("+------------+------------------+----------------------+-----------------+------------------+------------------+------------------+");
+}
 	}
 
 	private static void updateBillAmount() { 
-		scanner = new Scanner(System.in);
+		 scanner = new Scanner(System.in);
 
-    // Assuming the configuration and session factory setup remains the same as in your existing code
+	        try {
+	            System.out.print("Enter Billing Id to Update: ");
+	            long id = scanner.nextLong();
+	            scanner.nextLine();
 
-    System.out.print("Enter Billing Id to Update: ");
-    long id = scanner.nextLong();
-    scanner.nextLine();
-    
+	            Billing billing = session.get(Billing.class, id);
 
-    Billing billing = session.get(Billing.class, id);
+	            if (billing == null) {
+	                System.out.println("No billing record found for the provided Id.");
+	                return;
+	            }
 
-    if (billing == null) {
-        System.out.println("No billing record found for the provided Id.");
-    } else {
-        Transaction transaction = null;
-        try {
-            transaction = session.beginTransaction();
+	            Transaction transaction = null;
+	            try {
+	                transaction = session.beginTransaction();
 
-            System.out.println("Enter Updated Billing Details:");
+	                System.out.println("Enter Updated Billing Details:");
 
-            System.out.println("Billing Address: ");
-            String billingAddress = scanner.nextLine();
-            billing.setBillingAddress(billingAddress);
+	                System.out.print("Billing Address: ");
+	                String billingAddress = scanner.nextLine();
+	                billing.setBillingAddress(billingAddress);
 
-            System.out.println("Billing Date (YYYY-MM-DD): ");
-            String dateString = scanner.nextLine();
-            LocalDate billingDate = LocalDate.parse(dateString);
-            billing.setBillingDate(billingDate);
+	                System.out.print("Billing Date (YYYY-MM-DD): ");
+	                String dateString = scanner.nextLine();
+	                LocalDate billingDate = LocalDate.parse(dateString);
+	                billing.setBillingDate(billingDate);
 
-            System.out.println("Card Number: ");
-            String cardNumber = scanner.nextLine();
-            billing.setCardNumber(cardNumber);
+	                System.out.print("Card Number: ");
+	                String cardNumber = scanner.nextLine();
+	                billing.setCardNumber(cardNumber);
 
-            System.out.println("Discount Amount: ");
-            double discountAmount = scanner.nextDouble();
-            billing.setDiscountAmount(discountAmount);
+	                System.out.print("Discount Amount: ");
+	                double discountAmount = scanner.nextDouble();
+	                billing.setDiscountAmount(discountAmount);
 
-            System.out.println("Total Amount: ");
-            double totalamount = scanner.nextDouble();
-            billing.setTotalAmount(totalamount);
-            
-            System.out.println("Order Id: ");
-            long orderId = scanner.nextLong();
-            // Assuming you have a method to fetch the Order object by its Id
-            Order order = new Order();
-            billing.setOrder(order);
+	                System.out.print("Total Amount: ");
+	                double totalAmount = scanner.nextDouble();
+	                billing.setTotalAmount(totalAmount);
 
-            System.out.println("Product Id: ");
-            long productId = scanner.nextLong();
-            // Assuming you have a method to fetch the Product object by its Id
-            Product product = new Product();
-            billing.setProduct(product);
-            
-            session.update(billing);
-            transaction.commit();
-            System.out.println("Billing details updated successfully.");
-        }
-    catch (Exception e) {
-        if (transaction != null) {
-            transaction.rollback();
-        }
-        System.out.println("Failed to update billing details. Error: " + e.getMessage());
-    } finally {
-        // Close the session
-        if (session != null) {
-            session.close();
-        }}}
-    
-}
+	                // Here you should fetch and set the PurchaseOrder and Product objects by their respective IDs
+	                // For simplicity, assuming you have methods to fetch them
+
+	                System.out.print("Order Id: ");
+	                long orderId = scanner.nextLong();
+	                PurchaseOrder purchaseOrder = session.get(PurchaseOrder.class, orderId);
+	                billing.setPurchaseorder(purchaseOrder);
+
+	                System.out.print("Product Id: ");
+	                long productId = scanner.nextLong();
+	                Product product = session.get(Product.class, productId);
+	                billing.setProduct(product);
+
+	                session.update(billing);
+	                transaction.commit();
+	                System.out.println("Billing details updated successfully.");
+	            } catch (Exception e) {
+	                if (transaction != null) {
+	                    transaction.rollback();
+	                }
+	                System.out.println("Failed to update billing details. Error: " + e.getMessage());
+	            }
+	        } catch (Exception e) {
+	            System.out.println("Invalid input. Please enter a valid ID.");
+	        } finally {
+	            scanner.nextLine(); // Consume newline character
+	        }
+	    }
+
 
 
     
@@ -684,7 +669,10 @@ Product product=new Product();
             System.out.println("4. View All Order details");
             System.out.println("5. View OrderItem Details");
             System.out.println("6. View CartItem Details");
-            System.out.println("7. Go Back");
+            System.out.println("7. View CustomerID Details");
+            System.out.println("8. View All Customer Details");
+            
+            System.out.println("9. Go Back");
             System.out.print("\nEnter your choice: ");
 
             try {
@@ -710,6 +698,12 @@ Product product=new Product();
                     	viewCartItem();
                     	break;
                     case 7:
+                    	viewcustomerid();
+                    	break;
+                    case 8:
+                    	viewcustomerdetails();
+                    	break;
+                    case 9:
                     	 exit = true;
                          break;
                     default:
@@ -800,18 +794,18 @@ Product product=new Product();
         long orderId = scanner.nextLong();
         scanner.nextLine();
 
-        Order order = session.get(Order.class, orderId);
+        PurchaseOrder purchaseorder = session.get(PurchaseOrder.class, orderId);
 
-        if (order == null) {
+        if (purchaseorder == null) {
             System.out.println("Order with ID " + orderId + " does not exist.");
         } else {
             System.out.println("\nOrder Details:");
             System.out.println("===============");
-            System.out.println("Order ID: " + order.getId());
-            System.out.println("Total Amount: " + order.getTotalAmount());
+            System.out.println("Order ID: " + purchaseorder.getId());
+            System.out.println("Total Amount: " + purchaseorder.getTotalAmount());
 
             // View order items
-            List<OrderItem> orderItems = order.getOrderItems();
+            List<OrderItem> orderItems = purchaseorder.getOrderItems();
             if (!orderItems.isEmpty()) {
                 System.out.println("\nOrder Items:");
                 System.out.println("=============");
@@ -835,7 +829,7 @@ Product product=new Product();
             session = sessionFactory.openSession();
 
             // Execute HQL query to fetch all orders with associated customer
-            String hqlQuery = "SELECT o.id, o.orderDate, o.totalAmount, o.customer.id FROM Order o";
+            String hqlQuery = "SELECT o.id, o.orderDate, o.totalAmount, o.customer.id FROM PurchaseOrder o";
             List<Object[]> orderDetailsList = session.createQuery(hqlQuery, Object[].class).list();
 
             // Check if orderDetailsList is empty
@@ -870,7 +864,6 @@ Product product=new Product();
         }
     }
 
-
         
     
 
@@ -883,8 +876,8 @@ Product product=new Product();
             // Open session
             session = sessionFactory.openSession();
 
-            // Execute HQL query to fetch all order items
-            String hqlQuery = "SELECT oi FROM OrderItem oi";
+            // Execute HQL query to fetch all order items with associated purchase orders and products
+            String hqlQuery = "SELECT oi FROM OrderItem oi JOIN FETCH oi.purchaseorder JOIN FETCH oi.product";
             List<OrderItem> orderItemsList = session.createQuery(hqlQuery, OrderItem.class).list();
 
             // Check if orderItemsList is empty
@@ -901,7 +894,7 @@ Product product=new Product();
                     long orderItemId = orderItem.getId();
                     int quantity = orderItem.getQuantity();
                     long productId = orderItem.getProduct().getId();
-                    long orderId = orderItem.getOrder().getId();
+                    long orderId = orderItem.getPurchaseorder().getId();
 
                     System.out.printf("| %-12d | %-12d | %-12d | %-12d |\n", orderItemId, quantity, productId, orderId);
                     System.out.println("+--------------+--------------+--------------+--------------+");
@@ -948,6 +941,82 @@ Product product=new Product();
         }
     }  
 
+    private static void viewcustomerid(){
+    	scanner = new Scanner(System.in);
+
+    System.out.print("Enter Customer ID: ");
+    long customerId = scanner.nextLong();
+    scanner.nextLine();
+
+    Customer customer = session.get(Customer.class, customerId);
+
+    if (customer == null) {
+        System.out.println("Customer with ID " + customerId + " does not exist.");
+    } else {
+        System.out.println("\nCustomer Details:");
+        System.out.println("=================");
+        
+        System.out.println("Name: " + customer.getFirstName());
+        System.out.println("Email: " + customer.getEmail());
+        
+        System.out.println("Address: " + customer.getaddress());
+
+        // View orders of the customer
+        List<PurchaseOrder> orders = customer.getPurchaseorder();
+        if (!orders.isEmpty()) {
+            System.out.println("\nCustomer Orders:");
+            System.out.println("=================");
+            for (PurchaseOrder order : orders) {
+                System.out.println("Order ID: " + order.getId());
+                System.out.println("Total Amount: " + order.getTotalAmount());
+                // Additional order details can be displayed here
+            }
+        } else {
+            System.out.println("No orders for this customer.");
+        }
+    }}
+    
+    private static void viewcustomerdetails() {
+        Session session = null;
+        try {
+            // Open session
+            session = sessionFactory.openSession();
+
+            // Execute HQL query to fetch all customers
+            String hqlQuery = "SELECT c.customerId, c.firstName, c.email, c.address FROM Customer c";
+            List<Object[]> customerDetailsList = session.createQuery(hqlQuery, Object[].class).list();
+
+            // Check if customerDetailsList is empty
+            if (customerDetailsList.isEmpty()) {
+                System.out.println("No customers found.");
+            } else {
+                System.out.println("\nCustomer Details:");
+                System.out.println("===========================================================");
+
+                // Print details of each customer
+                for (Object[] customerDetails : customerDetailsList) {
+                    long customerId = (long) customerDetails[0];
+                    String firstname = (String) customerDetails[1];
+                    String email = (String) customerDetails[2];
+                    String address = (String) customerDetails[3];
+
+                    System.out.println("Customer ID: " + customerId);
+                    System.out.println("Name: " + firstname);
+                    System.out.println("Email: " + email);
+                    System.out.println("Address: " + address);
+
+                    System.out.println("-----------------------------------------------------------");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to fetch customer details. Error: " + e.getMessage());
+        } finally {
+            // Close session in finally block to ensure it is closed even if an exception occurs
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
+        }
+    }
 
 
 /*------------------------------------------------------------------------------------------*/    
@@ -1000,8 +1069,8 @@ Product product=new Product();
 	    long id = scanner.nextLong();
 	    scanner.nextLine();
 
-	    Order order = session.get(Order.class, id);
-	    if (order == null) {
+	    PurchaseOrder purchaseorder = session.get(PurchaseOrder.class, id);
+	    if (purchaseorder == null) {
 	        System.out.println("No order found for the provided Id.");
 	    } else {
 	        Transaction transaction = session.beginTransaction();
@@ -1014,14 +1083,14 @@ Product product=new Product();
 	            float totalAmount = scanner.nextFloat();
 	            scanner.nextLine(); // Consume newline character
 
-	            order.setOrderDate(orderDate);
-	            order.setTotalAmount(totalAmount);
+	           purchaseorder.setOrderDate(orderDate);
+	            purchaseorder.setTotalAmount(totalAmount);
 
 	            // Optionally, update cart items associated with the order
 	            // For example, you can access the cart items using order.getCartItems()
 	            // and update them accordingly
 
-	            session.update(order);
+	            session.update(purchaseorder);
 	            transaction.commit();
 	            System.out.println("Order details updated successfully.");
 	        } catch (Exception e) {
@@ -1120,7 +1189,7 @@ Product product=new Product();
 	        
 
 	        // Check if the associated order is not null before updating its total amount
-	        Order order = orderItem.getOrder();
+	        PurchaseOrder order = orderItem.getPurchaseorder();
 	        if (order != null) {
 	            order.setTotalAmount(totalamount);
 	        }
@@ -1138,34 +1207,36 @@ Product product=new Product();
 		 
 		    
 
-	public static void updateCartItem()  {
-	    // Other initialization code...
+	public static void updateCartItem() {
+	    try {
+	        // Other initialization code...
 
-	    System.out.print("Enter Cart Item Id to Update Quantity: ");
-	    long id = scanner.nextLong();
-	    scanner.nextLine();
+	        System.out.print("Enter Cart Item Id to Update Quantity: ");
+	        long id = scanner.nextLong();
+	        scanner.nextLine();
 
-	    CartItem cartItem = session.get(CartItem.class, id);
-	    if (cartItem == null) {
-	        System.out.println("No cart item found for the provided Id.");
-	    } else {
-	        Transaction transaction = session.beginTransaction();
+	        CartItem cartItem = session.get(CartItem.class, id);
+	        if (cartItem == null) {
+	            System.out.println("No cart item found for the provided Id.");
+	        } else {
+	            Transaction transaction = session.beginTransaction();
 
-	        System.out.print("Enter the New Quantity for Cart Item Id " + id + ": ");
-	        int quantity = scanner.nextInt();
-	        cartItem.setQuantity(quantity);
+	            System.out.print("Enter the New Quantity for Cart Item Id " + id + ": ");
+	            int quantity = scanner.nextInt();
+	            cartItem.setQuantity(quantity);
 
-	        // Check if the associated product is not null before updating its total amount
-	        Product product = cartItem.getProduct();
-	        if (product != null) {
-	            cartItem.setProduct(product);
+	            // Check if the associated product is not null before updating its total amount
+	            Product product = cartItem.getProduct();
+	            if (product != null) {
+	                cartItem.setProduct(product);
+	            }
+
+	            session.update(cartItem);
+	            transaction.commit();
+	            System.out.println("Cart item quantity updated successfully.");
 	        }
-
-	        session.update(cartItem);
-	        transaction.commit();
-	        System.out.println("Cart item quantity updated successfully.");
-
-	        session.close();
+	    } catch (Exception e) {
+	        System.out.println("Failed to update cart item quantity. Error: " + e.getMessage());
 	    }
 	}
 
@@ -1199,7 +1270,7 @@ Product product=new Product();
 	        // Assuming you have a method to fetch the Order object by its Id
 	        System.out.print("Enter the Order Id for Customer Id " + id + ": ");
 	        long orderId = scanner.nextLong();
-	        Order order = session.get(Order.class, orderId);
+	        PurchaseOrder purchaseorder = session.get(PurchaseOrder.class, orderId);
 	        
 
 	        session.update(customer);
@@ -1213,7 +1284,7 @@ Product product=new Product();
 	    
 	
 	/*-------------------------------------------------------------------------------------------------------------------------------------*/
-   public static void deleteProductById() {
+	public static void deleteProductById() {
 	    scanner = new Scanner(System.in);
 
 	    System.out.print("Enter Product Id to Delete: ");
@@ -1233,6 +1304,27 @@ Product product=new Product();
 	        String confirmation = scanner.nextLine();
 
 	        if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) {
+	            // Check if the product has associated order items
+	            List<OrderItem> orderItems = session.createQuery("FROM OrderItem WHERE product = :product", OrderItem.class)
+	                    .setParameter("product", product)
+	                    .getResultList();
+
+	            if (!orderItems.isEmpty()) {
+	                System.out.println("This product is associated with order items.");
+	                System.out.print("Do you want to delete the associated order items as well? (Yes/No): ");
+	                String deleteOrderItemsConfirmation = scanner.nextLine();
+	                if (deleteOrderItemsConfirmation.equalsIgnoreCase("yes") || deleteOrderItemsConfirmation.equalsIgnoreCase("y")) {
+	                    // Delete associated order items
+	                    for (OrderItem orderItem : orderItems) {
+	                        session.delete(orderItem);
+	                    }
+	                } else {
+	                    System.out.println("Deletion of associated order items cancelled.");
+	                    return;
+	                }
+	            }
+
+	            // Proceed with deleting the product
 	            Transaction transaction = session.beginTransaction();
 	            session.delete(product);
 	            transaction.commit();
@@ -1242,6 +1334,7 @@ Product product=new Product();
 	        }
 	    }
 	}
+
 
 	public static void deleteAllProducts() {
 	    scanner = new Scanner(System.in);
@@ -1271,7 +1364,7 @@ Product product=new Product();
 	    }
 	}
 
-	public static void deleteProduct() {
+	public static void deleteshoppingcart() {
 	    while (true) {
 	        System.out.println("\nSelect How You Want to Delete Product Record:");
 	        System.out.println("----------------------------------------------");
@@ -1284,7 +1377,8 @@ Product product=new Product();
 	        System.out.println("7. Delete Particular Cart Item ID.");
 	        System.out.println("8. Delete All Cart Items Details.");
 	        System.out.println("9. Delete Particular CustomerID.");
-	        System.out.println("10. Back.");
+	        System.out.println("10. Delete All Customer Details.");
+	        System.out.println("11. Back.");
 	        System.out.print("\nEnter Your Choice: ");
 
 	        try 
@@ -1309,7 +1403,7 @@ Product product=new Product();
 	                	deleteAllOrderDetails();
 	                	break;
 	                case 5:
-	                	deleteOrderItembyId();
+	                	deleteOrderItemById();
 	                	break;
 	                case 6:
 	                	deleteAllOrderItems();
@@ -1323,8 +1417,10 @@ Product product=new Product();
 	                case 9:
 	                	deletecustomerId();
 	                	break;
-	                	
 	                case 10:
+	                	deleteAllCustomers();
+	                	break;
+	                case 11:
 	                    return;
 	                default:
 	                    System.out.println("Please Enter a Valid Choice.");
@@ -1341,45 +1437,46 @@ Product product=new Product();
 	    }
 	}
 
-	public static void deleteOrderById() 
-	{
+	public static void deleteOrderById() {
 	    scanner = new Scanner(System.in);
 
 	    System.out.print("Enter Order Id to Delete: ");
-	    long id = scanner.nextLong();
+	    Long orderId = scanner.nextLong();
 	    scanner.nextLine();
 
-	    Order order = session.get(Order.class, id);
+	    PurchaseOrder order = session.get(PurchaseOrder.class, orderId);
 
-	    if (order == null) 
-	    {
-	        System.out.println("Order with ID " + id + " does not exist.");
+	    if (order == null) {
+	        System.out.println("Order with ID " + orderId + " does not exist.");
 	        return;
 	    }
-	    else 
-	    {
-	        System.out.println(". . . . . . . . . . . . . . . . . . .  A  L  E  R  T  . . . . . . . . . . . . . . . . . . .");
-	        System.out.println("You Are About to Permanently Delete a Particular Order.");
 
-	        System.out.print("Do You Wish to Continue? (Yes/No) : ");
-	        String confirmation = scanner.nextLine();
+	    System.out.println(". . . . . . . . . . . . . . . . . . .  A  L  E  R  T  . . . . . . . . . . . . . . . . . . .");
+	    System.out.println("You Are About to Permanently Delete a Particular Order.");
 
-	        if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) 
-	        {
-	            Transaction transaction = session.beginTransaction();
-	            session.delete(order);
-	            transaction.commit();
-	            System.out.println("Order with ID " + id + " Deleted Successfully.");
-	        }
-	        else 
-	        {
-	            System.out.println("Deletion Cancelled!");
-	        }
+	    System.out.print("Do You Wish to Continue? (Yes/No) : ");
+	    String confirmation = scanner.nextLine();
+
+	    if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) {
+	        Transaction transaction = session.beginTransaction();
+
+	        // Delete associated billing records
+	        session.createQuery("DELETE FROM Billing b WHERE b.purchaseorder.id = :orderId")
+	                .setParameter("orderId", orderId)
+	                .executeUpdate();
+
+	        // Delete the order
+	        session.delete(order);
+
+	        transaction.commit();
+	        System.out.println("Order with ID " + orderId + " Deleted Successfully.");
+	    } else {
+	        System.out.println("Deletion Cancelled!");
 	    }
 	}
 
 
-   
+
 
 private static void deleteAllOrderDetails() {
 	
@@ -1418,52 +1515,58 @@ private static void deleteAllOrderDetails() {
 	}
 
 
-private static void deleteOrderItembyId()  {
-    Scanner scanner = new Scanner(System.in);
+private static void deleteOrderItemById(){
+	Scanner scanner = new Scanner(System.in);
+Session session = sessionFactory.openSession();
+Transaction transaction = null;
 
-    System.out.print("Enter Order Item Id to Delete: ");
-    long id = scanner.nextLong();
-    scanner.nextLine();
+try {
+    transaction = session.beginTransaction();
+    System.out.println("Delete OrderItem ID :");
+    Long orderItemId=scanner.nextLong();
+    
 
-    OrderItem orderItem = session.get(OrderItem.class, id);
+    OrderItem orderItem = session.get(OrderItem.class, orderItemId);
 
     if (orderItem == null) {
-        System.out.println("Order Item with ID " + id + " does not exist.");
+        System.out.println("Order Item with ID " + orderItemId + " does not exist.");
         return;
-    } else {
-        System.out.println(". . . . . . . . . . . . . . . . . . .  A  L  E  R  T  . . . . . . . . . . . . . . . . . . .");
-        System.out.println("You Are About to Permanently Delete a Particular Order Item.");
-
-        System.out.print("Do You Wish to Continue? (Yes/No) : ");
-        String confirmation = scanner.nextLine();
-
-        if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) {
-            Transaction transaction = session.beginTransaction();
-            
-            // Get the associated order and product
-            Order order = orderItem.getOrder();
-            Product product = orderItem.getProduct();
-            
-            // Remove the order item from the order
-            if (order != null) {
-                                session.update(order);
-            }
-            
-            // Remove the order item from the product
-            if (product != null) {
-               
-                session.update(product);
-            }
-            
-            // Finally, delete the order item
-            session.delete(orderItem);
-            transaction.commit();
-            System.out.println("Order Item with ID " + id + " Deleted Successfully.");
-        } else {
-            System.out.println("Deletion Cancelled!");
-        }
     }
-}
+
+    System.out.println("You Are About to Permanently Delete a Particular Order Item.");
+
+    System.out.print("Do You Wish to Continue? (Yes/No) : ");
+    String confirmation = scanner.nextLine();
+
+    if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) {
+        // Get the associated order for potential updates
+        PurchaseOrder purchaseorder = orderItem.getPurchaseorder();
+
+        // Remove the order item from the associated order (if exists)
+        if (purchaseorder != null) {
+            purchaseorder.removeOrderItem(orderItem);
+            session.saveOrUpdate(purchaseorder);
+        }
+
+        // Finally, delete the order item
+        session.delete(orderItem);
+        transaction.commit();
+
+        System.out.println("Order Item with ID " + orderItemId + " Deleted Successfully.");
+    } else {
+        System.out.println("Deletion Cancelled!");
+    }
+} catch (Exception e) {
+    if (transaction != null) {
+        transaction.rollback();
+    }
+    System.out.println("Failed to delete Order Item. Error: " + e.getMessage());
+} finally {
+    if (session != null) {
+        session.close();
+    }
+    scanner.close();
+}}
 
 private static void deleteAllOrderItems()  {
     Scanner scanner = new Scanner(System.in);
@@ -1493,7 +1596,7 @@ private static void deleteAllOrderItems()  {
 
         for (OrderItem orderItem : orderItems) {
             // Get the associated order and product
-            Order order = orderItem.getOrder();
+            PurchaseOrder purchaseorder = orderItem.getPurchaseorder();
             Product product = orderItem.getProduct();
 
             
@@ -1613,5 +1716,29 @@ public static void deletecustomerId() {
 	       
 	    }
 	}
+private static void deleteAllCustomers() {
+    Scanner scanner = new Scanner(System.in);
+
+    System.out.println(". . . . . . . . . . . . . . . .  A   L   E   R   T . . . . . . . . . . . . . . . .");
+    System.out.println("You are about to permanently delete all Customers.");
+    System.out.print("Do You Wish to Continue? (Yes/No) : ");
+    String confirmation = scanner.nextLine();
+
+    if (confirmation.equalsIgnoreCase("yes") || confirmation.equalsIgnoreCase("y")) {
+        Transaction transaction = session.beginTransaction();
+
+        // Query to delete all customers
+        Query deleteQuery = session.createQuery("delete from Customer");
+        int deletedCount = deleteQuery.executeUpdate();
+
+        transaction.commit();
+
+        System.out.println(deletedCount + " Customers removed.");
+    } else {
+        System.out.println("Deletion cancelled.");
+    }
+
+    scanner.close();
+}
 
 }

@@ -19,127 +19,109 @@ public class Billing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-   
-    @Column(name = "billing_address")
     private String billingAddress;
-
-    
-
     @Column(name = "card_number")
     private String cardNumber;
-
-    
     @Column(name = "total_amount")
     private double totalAmount;
-
     @Column(name = "billing_date")
     private LocalDate billingDate;
     @Column(name = "discount_amount")
     private double discountAmount;
-
     @OneToOne
     @JoinColumn(name="billing")
-    private Order order;
-
+    private PurchaseOrder purchaseorder;
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-
-	public Long getId() {
+   public Long getId() 
+   {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public Billing(PurchaseOrder purchaseorder) {
+	super();
+	this.purchaseorder = purchaseorder;
+}
+
+	public PurchaseOrder getPurchaseorder() {
+	return purchaseorder;
+}
+
+public void setPurchaseorder(PurchaseOrder purchaseorder) {
+	this.purchaseorder = purchaseorder;
+}
+
+	public void setId(Long id) 
+	{
 		this.id = id;
 	}
-
-	
-	public String getBillingAddress() {
+    public String getBillingAddress() 
+    {
 		return billingAddress;
 	}
-
-	public void setBillingAddress(String billingAddress) {
+    public void setBillingAddress(String billingAddress)
+    {
 		this.billingAddress = billingAddress;
 	}
-
-	
-
-	public String getCardNumber() {
+    public String getCardNumber() 
+    {
 		return cardNumber;
 	}
-
-	public void setCardNumber(String cardNumber) {
+    public void setCardNumber(String cardNumber)
+    {
 		this.cardNumber = cardNumber;
 	}
-
-	
-	public double getTotalAmount() {
+    public double getTotalAmount()
+    {
 		return totalAmount;
 	}
-
-	public void setTotalAmount(double totalAmount) {
+    public void setTotalAmount(double totalAmount) 
+    {
 		this.totalAmount = totalAmount;
 	}
-
-	public LocalDate getBillingDate() {
+    public LocalDate getBillingDate() 
+    {
 		return billingDate;
 	}
-
-	public void setBillingDate(LocalDate billingDate) {
+    public void setBillingDate(LocalDate billingDate)
+    {
 		this.billingDate = billingDate;
 	}
-
-	
-	public double getDiscountAmount() {
+    public double getDiscountAmount()
+    {
 		return discountAmount;
 	}
-
-	public void setDiscountAmount(double discountAmount) {
+    public void setDiscountAmount(double discountAmount) 
+    {
 		this.discountAmount = discountAmount;
 	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	public Product getProduct() {
+   
+    public Product getProduct() 
+    {
 		return product;
 	}
-
-	public void setProduct(Product product) {
+    public void setProduct(Product product)
+    {
 		this.product = product;
 	}
-
-	public Billing(Long id, Long orderId, String billingAddress,  String cardNumber,
-			Date expiryDate, double totalAmount, LocalDate billingDate, double taxAmount, double discountAmount, Order order,
-			Product product) {
+    public Billing(Long id, Long orderId, String billingAddress,  String cardNumber,
+			Date expiryDate, double totalAmount, LocalDate billingDate, double taxAmount, double discountAmount, PurchaseOrder purchaseorder,
+			Product product) 
+    {
 		super();
 		this.id = id;
-		
 		this.billingAddress = billingAddress;
 		this.cardNumber = cardNumber;
-		
 		this.totalAmount = totalAmount;
 		this.billingDate = billingDate;
-		
 		this.discountAmount = discountAmount;
-		this.order = order;
+		this.purchaseorder= purchaseorder;
 		this.product = product;
 	}
-
-	
-
-
-
-	public Billing() {
+    public Billing() 
+    {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-    
 }

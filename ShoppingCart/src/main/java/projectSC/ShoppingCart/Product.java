@@ -6,50 +6,64 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class Product {
+public class Product 
+{
 	@Id
 	 @GeneratedValue(strategy = GenerationType.IDENTITY)
  private Long id;
  private String name;
  private String category;
  private double Price;
-public Long getId() {
+ 
+ 
+public Long getId() 
+{
 	return id;
 }
-public void setId(Long id) {
+public void setId(Long id)
+{
 	this.id = id;
 }
-public String getName() {
+public String getName() 
+{
 	return name;
 }
-public void setName(String name) {
+public void setName(String name) 
+{
 	this.name = name;
 }
-public String getCategory() {
+public String getCategory() 
+{
 	return category;
 }
-public void setCategory(String category) {
+public void setCategory(String category) 
+{
 	this.category = category;
 }
-public double getPrice() {
+public double getPrice() 
+{
 	return Price;
 }
-public void setPrice(double price) {
+public void setPrice(double price) 
+{
 	Price = price;
 }
-public Product(Long id, String name, String category, double price) {
+public Product(Long id, String name, String category, double price) 
+{
 	super();
 	this.id = id;
 	this.name = name;
 	this.category = category;
 	this.Price = price;
 }
-public Product() {
+public Product() 
+{
 	super();
 	// TODO Auto-generated constructor stub
 }
 @Override
-public String toString() {
+public String toString() 
+{
 	return "Product [id=" + id + ", name=" + name + ", category=" + category + ", Price=" + Price + "]";
 }
  

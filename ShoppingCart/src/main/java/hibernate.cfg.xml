@@ -28,7 +28,7 @@
 		
 		<!-- Mapping Configuration -->
 		<mapping class ="projectSC.ShoppingCart.Product"/>
-		<mapping class ="projectSC.ShoppingCart.Order"/>
+		<mapping class ="projectSC.ShoppingCart.PurchaseOrder"/>
 		<mapping class ="projectSC.ShoppingCart.OrderItem"/>
 		<mapping class ="projectSC.ShoppingCart.CartItem"/>
 		<mapping class ="projectSC.ShoppingCart.Admin"/>

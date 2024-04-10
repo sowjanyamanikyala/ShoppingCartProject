@@ -1,77 +1,72 @@
 package projectSC.ShoppingCart;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class OrderItem {
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "id")
-private Long id;
-private int quantity;
-@ManyToOne
-@JoinColumn(name="order_id")
-private Order order;
 
-@ManyToOne
-@JoinColumn(name="product_id")
-private Product product;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-public Long getId() {
-	return id;
-}
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-public void setId(Long id) {
-	this.id = id;
-}
+    private int quantity;
 
-public int getQuantity() {
-	return quantity;
-}
+    @ManyToOne
+    @JoinColumn(name = "purchase_order_id") // Specify the foreign key column name
+    private PurchaseOrder purchaseorder;
 
-public void setQuantity(int quantity) {
-	this.quantity = quantity;
-}
+    // Constructors, getters, and setters
 
-public Order getOrder() {
-	return order;
-}
+   
 
-public void setOrder(Order order) {
-	this.order = order;
-}
+	public OrderItem() {
+        // Default constructor
+    }
 
-public Product getProduct() {
-	return product;
-}
+    public OrderItem(PurchaseOrder purchaseorder) {
+		super();
+		this.purchaseorder = purchaseorder;
+	}
 
-public void setProduct(Product product) {
-	this.product = product;
-}
+	public PurchaseOrder getPurchaseorder() {
+		return purchaseorder;
+	}
 
-public OrderItem(Long id, int quantity, Order order, Product product) {
-	super();
-	this.id = id;
-	this.quantity = quantity;
-	this.order = order;
-	this.product = product;
-}
+	public void setPurchaseorder(PurchaseOrder purchaseorder) {
+		this.purchaseorder = purchaseorder;
+	}
 
-@Override
-public String toString() {
-	return "OrderItem [id=" + id + ", quantity=" + quantity + ", order=" + order + ", product=" + product + "]";
-}
+	public OrderItem(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
 
-public OrderItem() {
-	super();
-	// TODO Auto-generated constructor stub
-}
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }
